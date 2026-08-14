@@ -14,8 +14,8 @@
     "private": true,
     "packageManager": "bun@1.2.23",
     "scripts": {
-        "dev": "bun run vite",
-        "build": "bun run vite build"
+        "dev": "vite",
+        "build": "vite build"
     },
     "type": "module",
     "dependencies": {
