@@ -64,11 +64,12 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Setup permissions
-RUN chmod +x /usr/local/bin/entrypoint.sh && \
+# Setup permissions and fix CRLF line endings if built from Windows
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh && \
+    chmod +x /usr/local/bin/entrypoint.sh && \
     mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache && \
     chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
-    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Expose Render default port (injected dynamically via $PORT)
 EXPOSE 80 10000

@@ -19,6 +19,8 @@ services:
       # Neon PostgreSQL Database Connection
       - key: DB_CONNECTION
         value: pgsql
+      - key: DB_PORT
+        value: "5432"
       - key: DATABASE_URL
         sync: false
       - key: DB_SSLMODE

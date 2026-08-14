@@ -9,12 +9,13 @@ This guide explains how to deploy this project to [Render](https://render.com) c
 1. Log in to your [Neon Console](https://console.neon.tech).
 2. Select your project and branch (typically `main`).
 3. In the **Dashboard** or **Connection Details** section, locate your connection string.
-4. Ensure the dropdown is set to **PostgreSQL** or **Pooled connection** (both work seamlessly):
-   - Example connection string:
+4. **Important**: Uncheck **"Pooled connection"** (or use the **Direct** connection without `-pooler`). 
+   - Neon's pooled connection uses PgBouncer, which aborts multi-statement DDL migration transaction blocks.
+   - Example **Direct** connection string (notice **no** `-pooler`):
      ```text
-     postgresql://neondb_owner:npg_AbCdEf123456@ep-cool-snowflake-12345678-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require
+     postgresql://neondb_owner:npg_AbCdEf123456@ep-cool-snowflake-12345678.us-east-2.aws.neon.tech/neondb?sslmode=require
      ```
-5. Copy this entire string. You will paste it into Render as `DATABASE_URL`.
+5. Copy this **Direct** connection string. You will use it for `DATABASE_URL` both locally and on Render.
 
 ---
 
@@ -132,3 +133,19 @@ You can open the **Shell** tab in your Render dashboard to run Artisan commands 
   ```bash
   php artisan tinker
   ```
+
+---
+
+## 6. Running Queue Jobs & Background Tasks
+
+### Integrated Queue Worker (Default & Cost-Free)
+Your container is already configured via `docker/supervisord.conf` with an integrated queue worker:
+```ini
+[program:laravel-worker]
+command=php /var/www/html/artisan queue:work --sleep=3 --tries=3 --max-time=3600 --timeout=90
+```
+This worker:
+- Starts automatically alongside Nginx and PHP-FPM when the container boots.
+- Processes background jobs (emails, AI processing, notifications) from your Neon PostgreSQL `jobs` table.
+- Automatically logs all job processing output directly to your Render **Logs** dashboard.
+- Requires **no extra paid services or configuration**.
